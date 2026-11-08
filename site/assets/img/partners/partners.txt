@@ -10,3 +10,4 @@
 03-dahua.png | Dahua Technology
 04-hikvision.png | Hikvision
 05-tenda.png | Tenda
+06-zoho.png | Zoho
