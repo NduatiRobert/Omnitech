@@ -36,3 +36,6 @@ SOCIAL_LINKS = {                # add full URLs, e.g. "facebook": "https://faceb
 # While empty, a text wordmark is shown.
 LOGO_FILE = "assets/img/logo.png"
 LOGO_FILE_LIGHT = "assets/img/logo-light.png"   # optional white version for the dark footer
+
+# ---- Home page logo strip (logos go in site/assets/img/partners/)
+PARTNERS_TITLE = "Trusted brand partners"

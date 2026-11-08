@@ -65,6 +65,7 @@ Create a folder in `gallery/` named with the date and a title, e.g. `2026-11-15-
 | Privacy Policy, Terms and Conditions | `src/pages/*.md` |
 | Colours and fonts | top of `site/assets/css/styles.css` |
 | Zoho product icons | put the official icons in `site/assets/img/zoho/` named `one`, `crm`, `books`, `inventory`, `mail`, `workplace`, `creator`, `desk`, `people`, `projects`, `analytics`, `flow` (`.svg`, `.png` or `.webp`). See the README.txt in that folder. |
+| Home page logo strip ("Trusted brand partners") | upload logos to `site/assets/img/partners/` (SVG or transparent PNG). The section appears once there is at least one logo. Set names and links in `partners.txt` in that folder, and change the heading with `PARTNERS_TITLE` in `src/config.py`. |
 | Hero pictures | put a photo in `site/assets/img/hero/` named after the page, e.g. `home.jpg`, `cctv-installation.jpg`, `zoho-consulting.webp` (4:3, about 1280 × 960 px). It replaces that page's illustration automatically. |
 
 After any change, run `python3 build.py`.

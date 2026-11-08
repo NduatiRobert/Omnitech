@@ -438,6 +438,55 @@ def zoho_apps_block():
 </section>'''
 
 
+# ---------------------------------------------------------------- PARTNER LOGOS
+def load_partners():
+    """Logos in site/assets/img/partners/. Optional partners.txt: file | Name | https://link (one per line)."""
+    folder = os.path.join(OUT, "assets/img/partners")
+    if not os.path.isdir(folder):
+        return []
+    extra = {}
+    txt = os.path.join(folder, "partners.txt")
+    if os.path.exists(txt):
+        for line in open(txt, encoding="utf-8"):
+            parts = [x.strip() for x in line.split("|")]
+            if parts and parts[0] and not parts[0].startswith("#"):
+                extra[parts[0]] = parts[1:]
+    logos = []
+    for f in sorted(os.listdir(folder)):
+        if f.rsplit(".", 1)[-1].lower() not in ("svg", "png", "webp", "jpg", "jpeg"):
+            continue
+        info = extra.get(f, [])
+        base = re.sub(r"^\d+[-_ ]*", "", f.rsplit(".", 1)[0])
+        name = info[0] if info and info[0] else base.replace("-", " ").replace("_", " ").title()
+        url = info[1] if len(info) > 1 else ""
+        logos.append({"file": f"assets/img/partners/{f}", "name": name, "url": url})
+    return logos
+
+
+def partners_block():
+    logos = load_partners()
+    if not logos:
+        return ""
+    def item(l, hidden=False):
+        img = f'<img src="{l["file"]}" alt="{"" if hidden else esc(l["name"])}" loading="lazy" height="44">'
+        attrs = ' aria-hidden="true"' if hidden else ""
+        if l["url"] and not hidden:
+            return f'<li><a href="{esc(l["url"])}" target="_blank" rel="noopener" title="{esc(l["name"])}">{img}</a></li>'
+        return f'<li{attrs}>{img}</li>'
+    track = "".join(item(l) for l in logos)
+    clone = "".join(item(l, hidden=True) for l in logos)  # second copy makes the loop seamless
+    dur = max(20, len(logos) * 3)
+    return f'''
+<section class="partners" aria-label="{esc(C.PARTNERS_TITLE)}">
+  <div class="container">
+    <p class="partners-title">{esc(C.PARTNERS_TITLE)}</p>
+  </div>
+  <div class="marquee" style="--dur:{dur}s">
+    <ul class="marquee-track">{track}{clone}</ul>
+  </div>
+</section>'''
+
+
 # ---------------------------------------------------------------- HERO MEDIA
 def hero_media(key, label):
     """Uses a real photo from site/assets/img/hero/<key>.(webp|jpg|jpeg|png) when present, otherwise the illustration."""
@@ -527,6 +576,8 @@ def build_home():
     <div class="hero-media">{hero_media("home", "CCTV, Wi-Fi, websites and business software from Omnitech Systems")}</div>
   </div>
 </section>
+
+{partners_block()}
 
 <section class="section" id="services">
   <div class="container">

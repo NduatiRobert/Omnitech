@@ -1,0 +1,7 @@
+# Home page logo strip.
+# Upload logo files to this folder (SVG or transparent PNG work best; any size).
+# They appear in alphabetical order, so you can prefix numbers: 01-dahua.png, 02-hikvision.svg ...
+# The name is taken from the file name. To set a nicer name or a link, add a line:
+#   file name | Display name | https://link (optional)
+# Example:
+#   01-tp-link.png | TP-Link | https://www.tp-link.com
