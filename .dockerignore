@@ -1,0 +1,5 @@
+.git
+preview
+deploy/*.md
+*.zip
+__pycache__
