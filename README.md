@@ -53,6 +53,7 @@ The build adds each new article to the blog page, the home page ("From the blog"
 | Service pages, FAQs and home page text | `src/content.py` |
 | Privacy Policy, Terms and Conditions | `src/pages/*.md` |
 | Colours and fonts | top of `site/assets/css/styles.css` |
+| Hero pictures | put a photo in `site/assets/img/hero/` named after the page, e.g. `home.jpg`, `cctv-installation.jpg`, `zoho-consulting.webp` (4:3, about 1280 × 960 px). It replaces that page's illustration automatically. |
 
 After any change, run `python3 build.py`.
 
