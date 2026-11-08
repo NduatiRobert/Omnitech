@@ -60,6 +60,15 @@ CATEGORY_ICON = {
 }
 
 
+def asset_version(rel):
+    """Short content hash so browsers and Cloudflare fetch a fresh copy whenever the file changes."""
+    import hashlib
+    try:
+        return hashlib.md5(open(os.path.join(OUT, rel), "rb").read()).hexdigest()[:10]
+    except OSError:
+        return "1"
+
+
 def abs_url(path=""):
     return f"{C.SITE_URL}/{path}"
 
@@ -371,7 +380,7 @@ def page(filename, title, desc, active, body, extra_head="", full_title=None, og
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{pre}assets/css/styles.css">
+<link rel="stylesheet" href="{pre}assets/css/styles.css?v={asset_version('assets/css/styles.css')}">
 {ga}{extra_head}
 </head>
 <body>
@@ -381,7 +390,7 @@ def page(filename, title, desc, active, body, extra_head="", full_title=None, og
 {body}
 </main>
 {footer(pre)}
-<script src="{pre}assets/js/main.js" defer></script>
+<script src="{pre}assets/js/main.js?v={asset_version('assets/js/main.js')}" defer></script>
 </body>
 </html>
 '''
