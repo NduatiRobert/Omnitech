@@ -5,3 +5,8 @@
 #   file name | Display name | https://link (optional)
 # Example:
 #   01-tp-link.png | TP-Link | https://www.tp-link.com
+01-robitronics.png | Robitronics
+02-panafric-enterprises.png | Panafric Enterprises
+03-dahua.png | Dahua Technology
+04-hikvision.png | Hikvision
+05-tenda.png | Tenda

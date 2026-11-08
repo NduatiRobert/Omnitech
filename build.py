@@ -473,9 +473,11 @@ def partners_block():
         if l["url"] and not hidden:
             return f'<li><a href="{esc(l["url"])}" target="_blank" rel="noopener" title="{esc(l["name"])}">{img}</a></li>'
         return f'<li{attrs}>{img}</li>'
-    track = "".join(item(l) for l in logos)
-    clone = "".join(item(l, hidden=True) for l in logos)  # second copy makes the loop seamless
-    dur = max(20, len(logos) * 3)
+    # Repeat short lists so each half of the loop is wider than a large screen (no gap)
+    reps = max(1, math.ceil(12 / len(logos)))
+    track = "".join(item(l) for l in logos) + "".join(item(l, hidden=True) for l in logos * (reps - 1))
+    clone = "".join(item(l, hidden=True) for l in logos * reps)  # second half makes the loop seamless
+    dur = max(24, len(logos) * reps * 3)
     return f'''
 <section class="partners" aria-label="{esc(C.PARTNERS_TITLE)}">
   <div class="container">
