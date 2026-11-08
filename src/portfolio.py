@@ -55,6 +55,7 @@ def load_projects(root, today, services_by_slug):
             "highlights": _list(meta.get("highlights")),
             "cover": meta.get("cover", "").strip(), "gallery": _list(meta.get("gallery")),
             "featured": meta.get("featured", "").lower() in ("true", "yes", "1"),
+            "sample": meta.get("sample", "").lower() in ("true", "yes", "1"),
             "html": body_html,
         })
     projects.sort(key=lambda p: (p["featured"], p["date"], p["title"]), reverse=True)

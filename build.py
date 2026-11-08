@@ -978,7 +978,7 @@ def build_feed():
 def build_sitemap():
     entries = [("", TODAY, "1.0"), ("services.html", TODAY, "0.9"), ("contact.html", TODAY, "0.8"),
                ("blog.html", POSTS[0]["date"] if POSTS else TODAY, "0.8"), ("portfolio.html", TODAY, "0.8")]
-    entries += [(pr["file"], pr["date"] if pr["date"] <= TODAY else TODAY, "0.7") for pr in PROJECTS]
+    entries += [(pr["file"], pr["date"] if pr["date"] <= TODAY else TODAY, "0.7") for pr in PROJECTS if not pr["sample"]]
     entries += [(f'{s["slug"]}.html', TODAY, "0.9") for s in SERVICES]
     entries += [(p["file"], p["updated"], "0.7") for p in POSTS]
     entries += [("privacy-policy.html", TODAY, "0.3"), ("terms-and-conditions.html", TODAY, "0.3")]
@@ -1024,7 +1024,7 @@ def project_card(pr, pre=""):
     where = " · ".join(x for x in (pr["location"], str(pr["date"].year)) if x)
     tags = "".join(f'<span class="mini-tag">{esc(h)}</span>' for h in pr["highlights"][:3])
     return (f'<a href="{pre}{pr["file"]}" class="card post-card project-card" data-svc="{esc(svc)}">'
-            f'{project_cover(pr, pre)}<div class="post-body"><span class="post-cat">{esc(labels)}</span>'
+            f'{project_cover(pr, pre)}{"<span class=sample-badge>Sample project</span>" if pr["sample"] else ""}<div class="post-body"><span class="post-cat">{esc(labels)}</span>'
             f'<h3>{esc(pr["title"])}</h3><p>{esc(pr["summary"])}</p>'
             f'{f"<div class=mini-tags>{tags}</div>" if tags else ""}'
             f'<p class="post-meta">{icon("pin", "ic ic-sm")}<span>{esc(where)}</span></p></div></a>')
@@ -1124,6 +1124,7 @@ def build_projects():
     <h1>{esc(pr["title"])}</h1>
     <p class="lead">{esc(pr["summary"])}</p>
     <dl class="facts">{facts_html}</dl>
+    {'<p class="sample-note">' + icon("layers", "ic ic-sm") + ' This is a sample project showing how our case studies are presented. The images are illustrations, not photos of a real installation.</p>' if pr["sample"] else ""}
   </div>
 </header>
 <section class="section pt-0">
@@ -1160,7 +1161,7 @@ def build_projects():
             work["image"] = abs_url(img) if not img.startswith("http") else img
         page(pr["file"], pr["title"], pr["summary"], "portfolio", body,
              ld(work) + crumbs_schema([("Home", ""), ("Portfolio", "portfolio.html"), (pr["title"], pr["file"])]),
-             image=img, pre=pre)
+             image=img, pre=pre, noindex=pr["sample"])
 
 
 if __name__ == "__main__":

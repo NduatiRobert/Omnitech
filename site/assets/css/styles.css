@@ -479,3 +479,8 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
   .gallery { grid-template-columns: 1fr 1fr; gap: 8px; }
   .empty-state { padding: 40px 20px; }
 }
+.project-card { position: relative; }
+.sample-badge { position: absolute; top: 14px; left: 14px; z-index: 2; font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink); background: #fff; padding: 6px 12px; border-radius: 99px; box-shadow: var(--shadow); }
+.sample-note { display: flex; gap: 10px; align-items: flex-start; margin: 22px 0 0; padding: 14px 18px; border-radius: 12px; background: var(--grad-soft); border: 1px solid var(--brand-soft); color: var(--ink); font-size: .92rem; max-width: 760px; }
+.sample-note .ic { color: var(--brand); margin-top: 3px; }
+.svc-links .btn, .svc-links .btn:hover { color: #fff; }
