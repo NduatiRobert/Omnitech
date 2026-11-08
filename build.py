@@ -27,6 +27,7 @@ import markdown_lite as md  # noqa: E402
 import illustrations  # noqa: E402
 from illustrations import illustration  # noqa: E402
 import portfolio as pf  # noqa: E402
+import gallery as gal  # noqa: E402
 
 OUT = os.path.join(ROOT, "site")
 esc = html.escape
@@ -120,6 +121,7 @@ def load_posts():
 
 POSTS = []
 PROJECTS = []
+ALBUMS = []
 
 
 # ---------------------------------------------------------------- PIECES
@@ -165,6 +167,7 @@ def header(active, pre=""):
       </div>
       {nl(pre + "index.html#about", "About", "about")}
       {nl(pre + "portfolio.html", "Portfolio", "portfolio")}
+      {nl(pre + "gallery.html", "Gallery", "gallery")}
       {nl(pre + "blog.html", "Blog", "blog")}
       {nl(pre + "contact.html", "Contact", "contact")}
       <a href="{pre}contact.html" class="btn btn-primary nav-cta-mobile">Get a Free Quote {icon("arrow", "ic ic-sm")}</a>
@@ -214,6 +217,7 @@ def footer(pre=""):
       <li><a href="{pre}index.html#about">About us</a></li>
       <li><a href="{pre}services.html">All services</a></li>
       <li><a href="{pre}portfolio.html">Portfolio</a></li>
+      <li><a href="{pre}gallery.html">Gallery</a></li>
       <li><a href="{pre}blog.html">Blog</a></li>
       <li><a href="{pre}index.html#faq">FAQs</a></li>
       <li><a href="{pre}contact.html">Contact</a></li>
@@ -1014,7 +1018,9 @@ def build_feed():
 
 def build_sitemap():
     entries = [("", TODAY, "1.0"), ("services.html", TODAY, "0.9"), ("contact.html", TODAY, "0.8"),
-               ("blog.html", POSTS[0]["date"] if POSTS else TODAY, "0.8"), ("portfolio.html", TODAY, "0.8")]
+               ("blog.html", POSTS[0]["date"] if POSTS else TODAY, "0.8"), ("portfolio.html", TODAY, "0.8"),
+               ("gallery.html", ALBUMS[0]["date"] if ALBUMS else TODAY, "0.7")]
+    entries += [(a["file"], min(a["date"], TODAY), "0.5") for a in ALBUMS if not a["sample"]]
     entries += [(pr["file"], pr["date"] if pr["date"] <= TODAY else TODAY, "0.7") for pr in PROJECTS if not pr["sample"]]
     entries += [(f'{s["slug"]}.html', TODAY, "0.9") for s in SERVICES]
     entries += [(p["file"], p["updated"], "0.7") for p in POSTS]
@@ -1201,16 +1207,141 @@ def build_projects():
              image=img, pre=pre, noindex=pr["sample"])
 
 
+# ---------------------------------------------------------------- GALLERY
+def gal_src(a, ph, pre="", thumb=False):
+    return f'{pre}gallery/photos/{a["slug"]}/{"thumbs/" if thumb else ""}{ph["file"]}'
+
+
+def gal_grid(a, pre="", limit=None):
+    photos = a["photos"][:limit] if limit else a["photos"]
+    items = ""
+    for i, ph in enumerate(photos):
+        alt = ph["caption"] or f'{a["title"]}, photo {i + 1}'
+        cap = f' data-caption="{esc(ph["caption"])}"' if ph["caption"] else ""
+        items += (f'<a href="{gal_src(a, ph, pre)}" class="gallery-item" data-lightbox="{a["slug"]}"{cap}>'
+                  f'<img src="{gal_src(a, ph, pre, thumb=True)}" alt="{esc(alt)}" loading="lazy" width="640" height="480"></a>')
+    return items
+
+
+def album_meta(a):
+    bits = [f'{icon("clock", "ic ic-sm")}<span>{esc(a["date_label"])}</span>']
+    if a["location"]:
+        bits.append(f'{icon("pin", "ic ic-sm")}<span>{esc(a["location"])}</span>')
+    bits.append(f'{icon("layers", "ic ic-sm")}<span>{len(a["photos"])} photo{"s" if len(a["photos"]) != 1 else ""}</span>')
+    return '<p class="album-meta">' + "".join(f'<span class="am">{b}</span>' for b in bits) + '</p>'
+
+
+def build_gallery_index():
+    cats = []
+    for a in ALBUMS:
+        if a["category"] not in cats:
+            cats.append(a["category"])
+    chips = ""
+    if len(cats) > 1:
+        chips = ('<div class="chips" role="group" aria-label="Filter albums">'
+                 '<button class="chip is-active" data-gal="all">All</button>'
+                 + "".join(f'<button class="chip" data-gal="{esc(c)}">{esc(c)}</button>' for c in cats) + '</div>')
+    if ALBUMS:
+        sections = ""
+        for a in ALBUMS:
+            more = len(a["photos"]) - 8
+            more_link = (f'<a href="{a["file"]}" class="link-arrow">View all {len(a["photos"])} photos {icon("arrow", "ic ic-sm")}</a>'
+                         if more > 0 else f'<a href="{a["file"]}" class="link-arrow">Open album {icon("arrow", "ic ic-sm")}</a>')
+            badge = '<span class="mini-tag">Sample album</span>' if a["sample"] else ""
+            sections += f'''
+    <section class="album" data-cat="{esc(a["category"])}">
+      <div class="album-head">
+        <div>
+          <span class="post-cat">{esc(a["category"])}</span> {badge}
+          <h2 class="h3"><a href="{a["file"]}">{esc(a["title"])}</a></h2>
+          {album_meta(a)}
+        </div>
+        {more_link}
+      </div>
+      <div class="gallery gallery-wall">{gal_grid(a, limit=8)}</div>
+    </section>'''
+        content = f'{chips}<div class="albums">{sections}</div>'
+    else:
+        content = f'''<div class="card empty-state">
+      <span class="svc-ic svc-ic-lg">{icon("camera")}</span>
+      <h2 class="h3">Photos are on the way</h2>
+      <p>We're adding photos from recent installations and site visits. Follow along, or ask us for examples of similar work.</p>
+      <div class="btn-row center"><a href="portfolio.html" class="btn btn-primary">See our portfolio {icon("arrow", "ic ic-sm")}</a>
+      <a href="contact.html" class="btn btn-ghost">Contact us</a></div>
+    </div>'''
+    body = f'''
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><span>Gallery</span></nav>
+    <p class="eyebrow">Gallery</p>
+    <h1>Our work, <span class="accent">on the ground.</span></h1>
+    <p class="lead">Photos from our installations, projects and site visits across {esc(C.COUNTRY)}.</p>
+  </div>
+</section>
+<section class="section pt-0">
+  <div class="container">{content}</div>
+</section>'''
+    gal_ld = ld({"@context": "https://schema.org", "@type": "ImageGallery", "name": f"{C.COMPANY} Gallery",
+                 "url": abs_url("gallery.html"), "about": {"@id": abs_url("#business")},
+                 "hasPart": [{"@type": "ImageGallery", "name": a["title"], "url": abs_url(a["file"])} for a in ALBUMS if not a["sample"]]})
+    page("gallery.html", "Gallery", f"Photos of CCTV installations, network setups, projects and site visits by {C.COMPANY} in {C.COUNTRY}.",
+         "gallery", body, gal_ld + crumbs_schema([("Home", ""), ("Gallery", "gallery.html")]),
+         full_title=f"Gallery: Installations & Site Visits | {C.COMPANY}")
+
+
+def build_albums():
+    pre = "../"
+    for idx, a in enumerate(ALBUMS):
+        nav = ""
+        newer = ALBUMS[idx - 1] if idx > 0 else None
+        older = ALBUMS[idx + 1] if idx + 1 < len(ALBUMS) else None
+        if newer or older:
+            nav = '<nav class="album-nav">' + (
+                f'<a href="{pre}{newer["file"]}" class="btn btn-ghost">← {esc(newer["title"])}</a>' if newer else '<span></span>') + (
+                f'<a href="{pre}{older["file"]}" class="btn btn-ghost">{esc(older["title"])} →</a>' if older else '') + '</nav>'
+        sample = ('<p class="sample-note">' + icon("layers", "ic ic-sm") + ' This is a sample album showing how the gallery works. '
+                  'The images are illustrations, not real photos.</p>') if a["sample"] else ""
+        body = f'''
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{pre}index.html">Home</a><span>/</span><a href="{pre}gallery.html">Gallery</a><span>/</span><span>{esc(a["title"])}</span></nav>
+    <span class="post-cat">{esc(a["category"])}</span>
+    <h1 class="album-title">{esc(a["title"])}</h1>
+    {album_meta(a)}
+    {f'<div class="prose album-desc">{a["description"]}</div>' if a["description"] else ""}
+    {sample}
+  </div>
+</section>
+<section class="section pt-0">
+  <div class="container">
+    <div class="gallery gallery-wall">{gal_grid(a, pre)}</div>
+    {nav}
+  </div>
+</section>'''
+        imgs = [{"@type": "ImageObject", "contentUrl": abs_url(gal_src(a, ph)), "caption": ph["caption"] or a["title"]}
+                for ph in a["photos"]]
+        data = {"@context": "https://schema.org", "@type": "ImageGallery", "name": a["title"], "url": abs_url(a["file"]),
+                "datePublished": a["date"].isoformat(), "image": imgs, "author": {"@id": abs_url("#business")}}
+        if a["location"]:
+            data["contentLocation"] = {"@type": "Place", "name": a["location"]}
+        cover = next(ph for ph in a["photos"] if ph["file"] == a["cover"])
+        page(a["file"], a["title"], a["summary"] or f'{a["category"]} photos by {C.COMPANY}: {a["title"]}.', "gallery", body,
+             ld(data) + crumbs_schema([("Home", ""), ("Gallery", "gallery.html"), (a["title"], a["file"])]),
+             image=gal_src(a, cover), pre=pre, noindex=a["sample"])
+
+
 if __name__ == "__main__":
     os.makedirs(os.path.join(OUT, "assets/img"), exist_ok=True)
     # remove old generated blog pages so deleted / unpublished articles disappear
     shutil.rmtree(os.path.join(OUT, "blog"), ignore_errors=True)
     shutil.rmtree(os.path.join(OUT, "portfolio"), ignore_errors=True)
+    shutil.rmtree(os.path.join(OUT, "gallery"), ignore_errors=True)
     for old in glob.glob(os.path.join(OUT, "blog-page-*.html")):
         os.remove(old)
     illustrations.ZOHO_LOGOS.update({k: zoho_logo_path(k) for k, *_ in ZOHO_APPS if zoho_logo_path(k)})
     POSTS[:] = load_posts()
     PROJECTS[:] = pf.load_projects(ROOT, TODAY, SERVICE_BY_SLUG)
+    ALBUMS[:] = gal.load_albums(ROOT, TODAY)
     build_home()
     build_services_index()
     for s in SERVICES:
@@ -1222,10 +1353,13 @@ if __name__ == "__main__":
     build_portfolio_index()
     build_projects()
     pf.copy_images(ROOT, OUT)
+    build_gallery_index()
+    build_albums()
+    gal.copy_images(ROOT, OUT, ALBUMS)
     build_legal("privacy-policy")
     build_legal("terms-and-conditions")
     build_404()
     build_og_image()
     build_feed()
     build_sitemap()
-    print(f"Done -> {OUT}  ({len(POSTS)} published articles, {len(PROJECTS)} portfolio projects)")
+    print(f"Done -> {OUT}  ({len(POSTS)} published articles, {len(PROJECTS)} portfolio projects, {len(ALBUMS)} gallery albums)")

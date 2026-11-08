@@ -54,6 +54,9 @@ The build adds each new article to the blog page, the home page ("From the blog"
 
 Always get the client's permission before naming them or showing photos of their premises. Otherwise write `client: Private residence` or `client: Confidential client`.
 
+## Adding gallery photos (projects, site visits)
+Create a folder in `gallery/` named with the date and a title, e.g. `2026-11-15-montana-mall-site-visit`, and upload the photos into it. That's all: the album appears on the Gallery page, newest first. You can also add an `album.md` (title, category, location, description) and a `captions.txt`. Full steps are in `gallery/_HOW-TO.md`. To remove the sample album, delete `gallery/2026-11-08-sample-site-visit`.
+
 ## Editing everything else
 | What | File |
 | --- | --- |

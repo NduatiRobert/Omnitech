@@ -470,10 +470,17 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
 .gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
 .gallery-item:hover img { transform: scale(1.04); }
 .svc-links { display: grid; gap: 10px; }
-.lightbox { border: 0; padding: 0; background: transparent; max-width: min(1100px, 94vw); max-height: 90vh; }
-.lightbox::backdrop { background: rgba(8, 7, 20, .88); }
-.lightbox img { max-width: 100%; max-height: 86vh; border-radius: 12px; display: block; margin: 0 auto; }
-.lightbox button { position: fixed; top: max(16px, env(safe-area-inset-top)); right: 16px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #fff; color: var(--ink); font-size: 22px; cursor: pointer; }
+.lightbox { border: 0; padding: 0; background: transparent; width: 100vw; height: 100vh; max-width: 100vw; max-height: 100vh; }
+.lightbox[open] { display: flex; align-items: center; justify-content: center; }
+.lightbox::backdrop { background: rgba(8, 7, 20, .92); }
+.lightbox figure { margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; height: 100%; padding: 64px 72px; }
+.lightbox img { max-width: 100%; max-height: calc(100vh - 150px); border-radius: 12px; display: block; object-fit: contain; }
+.lightbox figcaption { color: rgba(255,255,255,.85); font-size: .92rem; text-align: center; }
+.lightbox button { position: fixed; z-index: 2; border-radius: 50%; border: 0; background: #fff; color: var(--ink); cursor: pointer; display: grid; place-items: center; line-height: 1; }
+.lb-close { top: max(16px, env(safe-area-inset-top)); right: 16px; width: 44px; height: 44px; font-size: 26px; }
+.lb-prev, .lb-next { top: 50%; transform: translateY(-50%); width: 48px; height: 48px; font-size: 30px; background: rgba(255,255,255,.92); }
+.lb-prev { left: 16px; } .lb-next { right: 16px; }
+.lightbox.single .lb-prev, .lightbox.single .lb-next { display: none; }
 @media (max-width: 640px) {
   .project-cover .post-cover { aspect-ratio: 16 / 10; }
   .gallery { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -497,3 +504,29 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
 @media (max-width: 1100px) { .zapps { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 960px) { .zapps { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 640px) { .zapps { grid-template-columns: 1fr; } }
+
+
+/* =====================================================================
+   GALLERY
+   ===================================================================== */
+.albums { display: grid; gap: 56px; margin-top: 36px; }
+.album[hidden] { display: none; }
+.album-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+.album-head h2 { margin: 6px 0 6px; }
+.album-head h2 a:hover { color: var(--brand); }
+.album-head .mini-tag { margin-left: 6px; vertical-align: middle; }
+.album-meta { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0; color: var(--muted); font-size: .88rem; }
+.album-meta .am { display: inline-flex; align-items: center; gap: 6px; }
+.album-meta .ic { color: var(--brand); width: 15px; height: 15px; }
+.gallery-wall { margin-top: 0; grid-template-columns: repeat(4, 1fr); }
+.album-title { margin-top: 10px; }
+.album-desc { margin-top: 18px; }
+.album-nav { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 40px; }
+@media (max-width: 960px) { .gallery-wall { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px) {
+  .gallery-wall { grid-template-columns: repeat(2, 1fr); }
+  .lightbox figure { padding: 64px 8px 24px; }
+  .lb-prev, .lb-next { top: auto; bottom: 20px; transform: none; }
+  .lightbox img { max-height: calc(100vh - 190px); }
+  .album-nav .btn { width: 100%; }
+}

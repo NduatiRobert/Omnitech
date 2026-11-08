@@ -1,0 +1,5 @@
+01-site-exterior.jpg: Site survey: planning camera positions around the building
+02-camera-mounting.jpg: Mounting outdoor cameras with concealed trunking
+03-monitoring-station.jpg: The finished monitoring station
+04-system-overview.jpg: Cameras, recorder and monitor ready for handover
+05-mobile-viewing.jpg: Phone viewing set up for the managers
