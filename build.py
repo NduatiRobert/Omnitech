@@ -210,6 +210,7 @@ def footer(pre=""):
     <div class="footer-brand">
       <a href="{pre}index.html" class="logo logo-light">{logo(light=True, pre=pre)}</a>
       <p>{esc(C.TAGLINE)}</p>
+      <img src="{pre}assets/img/zoho-authorized-partner.png" alt="Zoho Authorized Partner" class="partner-badge" width="200" height="74" loading="lazy">
       {socials()}
     </div>
     <div><h3>Services</h3><ul>{sec}</ul></div>
