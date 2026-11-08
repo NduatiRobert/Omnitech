@@ -8,6 +8,7 @@ The build uses the photo automatically when it exists. Recommended size: 1280 x 
 from icons import P as ICON_PATHS
 
 VIOLET, BLUE, CYAN, INK = "#7038e0", "#4e79e8", "#22c7f4", "#0c0b17"
+ZOHO_LOGOS = {}  # filled in by build.py: {"crm": "assets/img/zoho/crm.svg", ...}
 W, H = 640, 480
 
 
@@ -381,17 +382,21 @@ def scene_automation(p):
 
 
 def scene_zoho(p):
-    apps = (("CRM", "users", VIOLET), ("Books", "book", BLUE), ("Inventory", "box", CYAN),
-            ("Mail", "mail", "#e2557a"), ("Creator", "code", "#f2a33a"), ("People", "users", "#22a95b"))
+    apps = (("CRM", "users", VIOLET, "crm"), ("Books", "book", BLUE, "books"), ("Inventory", "box", CYAN, "inventory"),
+            ("Mail", "mail", "#e2557a", "mail"), ("Creator", "code", "#f2a33a", "creator"), ("People", "users", "#22a95b", "people"))
     cx, cy = 330, 226
     pos = [(cx + 190 * __import__("math").cos(a), cy + 140 * __import__("math").sin(a))
            for a in [(-90 + i * 60) * 3.14159 / 180 for i in range(6)]]
     lines = "".join(f'<line x1="{cx}" y1="{cy}" x2="{x:.1f}" y2="{y:.1f}" stroke="url(#{p}-brandh)" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round"/>' for x, y in pos)
     tiles = ""
-    for (name, icn, col), (x, y) in zip(apps, pos):
-        tiles += (f'<g filter="url(#{p}-sh)"><rect x="{x-62:.1f}" y="{y-34:.1f}" width="134" height="68" rx="16" fill="#fff"/></g>'
-                  f'<rect x="{x-50:.1f}" y="{y-20:.1f}" width="40" height="40" rx="11" fill="{col}"/>'
-                  f'{ic(icn, x-41, y-11, 22, "#fff")}{text(x-2, y+5, name, 12, INK, 800)}')
+    for (name, icn, col, key), (x, y) in zip(apps, pos):
+        tiles += f'<g filter="url(#{p}-sh)"><rect x="{x-62:.1f}" y="{y-34:.1f}" width="134" height="68" rx="16" fill="#fff"/></g>'
+        if key in ZOHO_LOGOS:
+            tiles += f'<image href="{ZOHO_LOGOS[key]}" x="{x-50:.1f}" y="{y-20:.1f}" width="40" height="40" preserveAspectRatio="xMidYMid meet"/>'
+        else:
+            tiles += (f'<rect x="{x-50:.1f}" y="{y-20:.1f}" width="40" height="40" rx="11" fill="{col}"/>'
+                      f'{ic(icn, x-41, y-11, 22, "#fff")}')
+        tiles += text(x-2, y+5, name, 12, INK, 800)
     return f'''{background(p)}
 <circle cx="{cx}" cy="{cy}" r="150" fill="url(#{p}-glowc)"/>
 {lines}{tiles}

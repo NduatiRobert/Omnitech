@@ -21,9 +21,10 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(ROOT, "src"))
 
 import config as C  # noqa: E402
-from content import SERVICES, SERVICE_BY_SLUG, PROCESS, WHY, HOME_FAQS  # noqa: E402
+from content import SERVICES, SERVICE_BY_SLUG, PROCESS, WHY, HOME_FAQS, ZOHO_APPS, ZOHO_OFFER_LOGOS  # noqa: E402
 from icons import icon  # noqa: E402
 import markdown_lite as md  # noqa: E402
+import illustrations  # noqa: E402
 from illustrations import illustration  # noqa: E402
 import portfolio as pf  # noqa: E402
 
@@ -405,6 +406,34 @@ def page(filename, title, desc, active, body, extra_head="", full_title=None, og
     print("built", filename)
 
 
+# ---------------------------------------------------------------- ZOHO LOGOS
+def zoho_logo_path(key):
+    """Official Zoho product icon, if it has been added to site/assets/img/zoho/."""
+    for ext in ("svg", "png", "webp"):
+        rel = f"assets/img/zoho/{key}.{ext}"
+        if os.path.exists(os.path.join(OUT, rel)):
+            return rel
+    return None
+
+
+def zoho_apps_block():
+    tiles = ""
+    for key, name, desc, fallback in ZOHO_APPS:
+        path = zoho_logo_path(key)
+        logo = (f'<img src="{path}" alt="{esc(name)} logo" width="48" height="48" loading="lazy">' if path
+                else f'<span class="svc-ic">{icon(fallback)}</span>')
+        tiles += f'<div class="card zapp">{logo}<div><h3>{esc(name)}</h3><p>{esc(desc)}</p></div></div>'
+    return f'''
+<section class="section section-tint">
+  <div class="container">
+    <p class="eyebrow">Zoho apps we implement</p>
+    <h2>One ecosystem, set up around your business</h2>
+    <p class="lead-sm">We help you choose the right Zoho apps, connect them and train your team to use them every day.</p>
+    <div class="zapps mt-lg">{tiles}</div>
+  </div>
+</section>'''
+
+
 # ---------------------------------------------------------------- HERO MEDIA
 def hero_media(key, label):
     """Uses a real photo from site/assets/img/hero/<key>.(webp|jpg|jpeg|png) when present, otherwise the illustration."""
@@ -581,8 +610,15 @@ def build_services_index():
 
 
 def build_service(s):
+    def offer_icon(i, t):
+        paths = [zoho_logo_path(k) for k in ZOHO_OFFER_LOGOS.get(t, [])] if s["slug"] == "zoho-consulting" else []
+        paths = [x for x in paths if x]
+        if paths:
+            return '<span class="offer-logos">' + "".join(
+                f'<img src="{x}" alt="" width="46" height="46" loading="lazy">' for x in paths) + '</span>'
+        return f'<span class="svc-ic">{icon(i)}</span>'
     offers = "".join(
-        f'<div class="card offer"><span class="svc-ic">{icon(i)}</span><h3>{esc(t)}</h3><p>{esc(d)}</p></div>'
+        f'<div class="card offer">{offer_icon(i, t)}<h3>{esc(t)}</h3><p>{esc(d)}</p></div>'
         for i, t, d in s["offer"])
     inc = "".join(f'<li>{icon("check", "ic ic-sm")} {esc(x)}</li>' for x in s["includes"])
     f = s["feature"]
@@ -643,6 +679,7 @@ def build_service(s):
   </div>
 </section>
 
+{zoho_apps_block() if s["slug"] == "zoho-consulting" else ""}
 {process_block()}
 {faq_block(s["faqs"], title=esc(s["nav"]) + " FAQs")}
 {projects_block([p for p in PROJECTS if s["slug"] in p["services"]][:3], "Recent " + esc(s["nav"]) + " projects", "Examples of similar work we've delivered.", "Portfolio")}
@@ -1171,6 +1208,7 @@ if __name__ == "__main__":
     shutil.rmtree(os.path.join(OUT, "portfolio"), ignore_errors=True)
     for old in glob.glob(os.path.join(OUT, "blog-page-*.html")):
         os.remove(old)
+    illustrations.ZOHO_LOGOS.update({k: zoho_logo_path(k) for k, *_ in ZOHO_APPS if zoho_logo_path(k)})
     POSTS[:] = load_posts()
     PROJECTS[:] = pf.load_projects(ROOT, TODAY, SERVICE_BY_SLUG)
     build_home()

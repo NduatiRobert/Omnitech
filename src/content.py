@@ -417,3 +417,30 @@ HOME_FAQS = [
     ("Do you provide support after the project?",
      "Yes. We offer maintenance and support plans for every service, as well as one-off support visits."),
 ]
+
+
+# ---------------------------------------------------------------- ZOHO APPS
+# key = file name of the official icon in site/assets/img/zoho/ (e.g. crm.svg or crm.png)
+ZOHO_APPS = [
+    ("one", "Zoho One", "The complete Zoho suite", "grid"),
+    ("crm", "Zoho CRM", "Sales pipelines and leads", "users"),
+    ("books", "Zoho Books", "Accounting and invoicing", "book"),
+    ("inventory", "Zoho Inventory", "Stock and orders", "box"),
+    ("mail", "Zoho Mail", "Business email", "mail"),
+    ("workplace", "Zoho Workplace", "Email and collaboration", "layers"),
+    ("creator", "Zoho Creator", "Custom low-code apps", "code"),
+    ("desk", "Zoho Desk", "Customer support", "headset"),
+    ("people", "Zoho People", "HR and attendance", "users"),
+    ("projects", "Zoho Projects", "Project management", "layout"),
+    ("analytics", "Zoho Analytics", "Reports and dashboards", "chart"),
+    ("flow", "Zoho Flow", "App integrations", "workflow"),
+]
+
+# Which official icons to show on each "What we offer" card of the Zoho page
+ZOHO_OFFER_LOGOS = {
+    "Zoho One rollout": ["one"],
+    "Zoho CRM": ["crm"],
+    "Zoho Books & Inventory": ["books", "inventory"],
+    "Zoho Workplace & Mail": ["workplace", "mail"],
+    "Zoho Creator & Deluge": ["creator"],
+}

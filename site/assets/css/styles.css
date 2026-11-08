@@ -484,3 +484,16 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
 .sample-note { display: flex; gap: 10px; align-items: flex-start; margin: 22px 0 0; padding: 14px 18px; border-radius: 12px; background: var(--grad-soft); border: 1px solid var(--brand-soft); color: var(--ink); font-size: .92rem; max-width: 760px; }
 .sample-note .ic { color: var(--brand); margin-top: 3px; }
 .svc-links .btn, .svc-links .btn:hover { color: #fff; }
+
+/* Zoho apps */
+.zapps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.zapp { display: flex; align-items: center; gap: 14px; padding: 18px 20px; }
+.zapp img { width: 48px; height: 48px; object-fit: contain; flex: none; }
+.zapp .svc-ic { width: 48px; height: 48px; }
+.zapp h3 { font-size: .98rem; margin: 0; }
+.zapp p { font-size: .84rem; margin: 2px 0 0; color: var(--muted); }
+.offer-logos { display: flex; gap: 8px; }
+.offer-logos img { width: 46px; height: 46px; object-fit: contain; }
+@media (max-width: 1100px) { .zapps { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 960px) { .zapps { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 640px) { .zapps { grid-template-columns: 1fr; } }
