@@ -496,7 +496,12 @@ def hero_media(key, label):
     for ext in ("webp", "jpg", "jpeg", "png"):
         rel = f"assets/img/hero/{key}.{ext}"
         if os.path.exists(os.path.join(OUT, rel)):
-            return (f'<img src="{rel}" alt="{esc(label)}" width="1280" height="960" fetchpriority="high" decoding="async">')
+            try:
+                from PIL import Image
+                w, h = Image.open(os.path.join(OUT, rel)).size
+            except Exception:
+                w, h = 1280, 960
+            return (f'<img src="{rel}" alt="{esc(label)}" width="{w}" height="{h}" fetchpriority="high" decoding="async">')
     return illustration(key, label)
 
 
@@ -576,7 +581,7 @@ def build_home():
         <li>{icon("check", "ic ic-sm")} After-sales support</li>
       </ul>
     </div>
-    <div class="hero-media">{hero_media("home", "CCTV, Wi-Fi, websites and business software from Omnitech Systems")}</div>
+    <div class="hero-media">{hero_media("home", "Outdoor Wi-Fi security camera installed on a building wall by Omnitech Systems")}</div>
   </div>
 </section>
 

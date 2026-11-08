@@ -555,3 +555,6 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
   .marquee-track img { max-height: 36px; }
 }
 .partner-badge { display: block; width: 200px; max-width: 100%; height: auto; margin-top: 20px; border-radius: 9px; background: #fff; }
+/* Real photos keep their own shape instead of the 4:3 illustration frame */
+.hero-media:has(> img) { aspect-ratio: auto; background: #0c0b17; }
+.hero-media > img { height: auto; }
