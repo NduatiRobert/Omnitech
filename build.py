@@ -24,6 +24,7 @@ import config as C  # noqa: E402
 from content import SERVICES, SERVICE_BY_SLUG, PROCESS, WHY, HOME_FAQS  # noqa: E402
 from icons import icon  # noqa: E402
 import markdown_lite as md  # noqa: E402
+from illustrations import illustration  # noqa: E402
 
 OUT = os.path.join(ROOT, "site")
 esc = html.escape
@@ -391,6 +392,16 @@ def page(filename, title, desc, active, body, extra_head="", full_title=None, og
     print("built", filename)
 
 
+# ---------------------------------------------------------------- HERO MEDIA
+def hero_media(key, label):
+    """Uses a real photo from site/assets/img/hero/<key>.(webp|jpg|jpeg|png) when present, otherwise the illustration."""
+    for ext in ("webp", "jpg", "jpeg", "png"):
+        rel = f"assets/img/hero/{key}.{ext}"
+        if os.path.exists(os.path.join(OUT, rel)):
+            return (f'<img src="{rel}" alt="{esc(label)}" width="1280" height="960" fetchpriority="high" decoding="async">')
+    return illustration(key, label)
+
+
 # ---------------------------------------------------------------- BLOG PIECES
 def post_cover(p, pre="", big=False):
     """Uses the article photo if set, otherwise a branded graphic with the category icon."""
@@ -449,20 +460,17 @@ def service_posts_block(s):
 def build_home():
     sec_cc = [s for s in SERVICES if s["group"] == "Security & Connectivity"]
     dig = [s for s in SERVICES if s["group"] == "Digital & Software"]
-    hero_tiles = "".join(
-        f'<a href="{s["slug"]}.html" class="hero-tile t{i}"><span class="svc-ic">{icon(s["icon"])}</span>'
-        f'<span>{esc(s["nav"])}</span></a>'
-        for i, s in enumerate(SERVICES))
     body = f'''
-<section class="hero">
+<section class="hero hero-dark">
+  <div class="hero-glow g-a"></div><div class="hero-glow g-b"></div>
   <div class="container hero-grid">
     <div class="hero-copy">
-      <p class="eyebrow">Security · Connectivity · IT Solutions</p>
+      <p class="hero-badge">Security · Connectivity · IT Solutions</p>
       <h1>Secure your premises.<br><span class="accent">Connect and grow your business.</span></h1>
       <p class="lead">{esc(C.COMPANY)} installs CCTV, internet and Wi-Fi hotspot systems, and builds the websites, software, automations and Zoho solutions that help businesses run smarter.</p>
       <div class="btn-row">
         <a href="contact.html" class="btn btn-primary">Get a Free Quote {icon("arrow", "ic ic-sm")}</a>
-        <a href="{wa_link()}" class="btn btn-ghost" target="_blank" rel="noopener">{icon("whatsapp", "ic ic-sm")} Chat on WhatsApp</a>
+        <a href="{wa_link()}" class="btn btn-outline-light" target="_blank" rel="noopener">{icon("whatsapp", "ic ic-sm")} Chat on WhatsApp</a>
       </div>
       <ul class="hero-points">
         <li>{icon("check", "ic ic-sm")} Free site surveys</li>
@@ -470,21 +478,7 @@ def build_home():
         <li>{icon("check", "ic ic-sm")} After-sales support</li>
       </ul>
     </div>
-    <div class="hero-visual" aria-label="Our services at a glance">
-      <div class="hero-board">
-        <div class="hero-board-head"><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="hb-title">One partner for</span></div>
-        <div class="hero-tiles">{hero_tiles}</div>
-      </div>
-      <div class="float-card">
-        <p class="fc-label">Every project includes</p>
-        <ul>
-          <li>{icon("check", "ic ic-sm")} Assessment</li>
-          <li>{icon("check", "ic ic-sm")} Installation</li>
-          <li>{icon("check", "ic ic-sm")} Training</li>
-          <li>{icon("check", "ic ic-sm")} Support</li>
-        </ul>
-      </div>
-    </div>
+    <div class="hero-media">{hero_media("home", "CCTV, Wi-Fi, websites and business software from Omnitech Systems")}</div>
   </div>
 </section>
 
@@ -583,24 +577,28 @@ def build_service(s):
     related = "".join(service_card(SERVICE_BY_SLUG[r]) for r in s["related"])
     msg = f"Hello Omnitech Systems, I'd like a quote for {s['name']}."
     body = f'''
-<section class="hero hero-service">
+<section class="hero hero-dark hero-service">
+  <div class="hero-glow g-a"></div><div class="hero-glow g-b"></div>
   <div class="container hero-grid">
     <div class="hero-copy">
       <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><a href="services.html">Services</a><span>/</span><span>{esc(s["nav"])}</span></nav>
-      <p class="eyebrow">{esc(s["eyebrow"])}</p>
+      <p class="hero-badge">{esc(s["eyebrow"])}</p>
       <h1>{esc(s["h1"])}<br><span class="accent">{esc(s["h1_accent"])}</span></h1>
       <p class="lead">{esc(s["lead"])}</p>
       <div class="btn-row">
         <a href="contact.html?service={s["slug"]}" class="btn btn-primary">Request a Quote {icon("arrow", "ic ic-sm")}</a>
-        <a href="{wa_link(msg)}" class="btn btn-ghost" target="_blank" rel="noopener">{icon("whatsapp", "ic ic-sm")} Chat on WhatsApp</a>
+        <a href="{wa_link(msg)}" class="btn btn-outline-light" target="_blank" rel="noopener">{icon("whatsapp", "ic ic-sm")} Chat on WhatsApp</a>
       </div>
     </div>
-    <aside class="include-card card">
-      <span class="svc-ic svc-ic-lg">{icon(s["icon"])}</span>
-      <p class="fc-label">What's included</p>
-      <ul class="check-list">{inc}</ul>
-      <a href="#faq" class="link-arrow">Read the FAQs {icon("arrow", "ic ic-sm")}</a>
-    </aside>
+    <div class="hero-media">{hero_media(s["slug"], s["name"])}</div>
+  </div>
+</section>
+
+<section class="includes-band">
+  <div class="container includes-inner">
+    <p class="fc-label">What's included</p>
+    <ul>{inc}</ul>
+    <a href="#faq" class="link-arrow">Read the FAQs {icon("arrow", "ic ic-sm")}</a>
   </div>
 </section>
 
