@@ -12,9 +12,10 @@
       var open = nav.classList.toggle('open');
       menuBtn.setAttribute('aria-expanded', open);
       document.body.style.overflow = open ? 'hidden' : '';
+      document.body.classList.toggle('menu-open', open);
     });
     nav.addEventListener('click', function (e) {
-      if (e.target.closest('a')) { nav.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; }
+      if (e.target.closest('a')) { nav.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; document.body.classList.remove('menu-open'); }
     });
   }
 
