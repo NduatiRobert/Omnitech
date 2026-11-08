@@ -448,3 +448,34 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
   .includes-inner { flex-direction: column; align-items: flex-start; }
   .includes-inner ul { flex-direction: column; gap: 8px; }
 }
+
+/* =====================================================================
+   PORTFOLIO
+   ===================================================================== */
+.mini-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.mini-tag { font-size: .74rem; font-weight: 600; color: var(--brand); background: var(--brand-softer); border: 1px solid var(--brand-soft); padding: 4px 10px; border-radius: 99px; }
+.project-card .post-meta { align-items: center; }
+.project-card .post-meta .ic { color: var(--brand); width: 15px; height: 15px; }
+.project-card[hidden] { display: none; }
+.empty-state { padding: 56px 32px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; max-width: 720px; margin: 40px auto 0; }
+.empty-state p { max-width: 520px; }
+.empty-state .svc-ic { margin-bottom: 12px; }
+.facts { display: flex; flex-wrap: wrap; gap: 14px 40px; margin: 26px 0 0; padding: 20px 0 0; border-top: 1px solid var(--line); }
+.facts div { min-width: 0; }
+.facts dt { font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 4px 0 0; font-weight: 700; color: var(--ink); }
+.project-cover .post-cover { border-radius: var(--radius-lg); aspect-ratio: 21 / 9; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 40px; }
+.gallery-item { display: block; border-radius: 14px; overflow: hidden; aspect-ratio: 4 / 3; background: var(--bg-tint); }
+.gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+.gallery-item:hover img { transform: scale(1.04); }
+.svc-links { display: grid; gap: 10px; }
+.lightbox { border: 0; padding: 0; background: transparent; max-width: min(1100px, 94vw); max-height: 90vh; }
+.lightbox::backdrop { background: rgba(8, 7, 20, .88); }
+.lightbox img { max-width: 100%; max-height: 86vh; border-radius: 12px; display: block; margin: 0 auto; }
+.lightbox button { position: fixed; top: max(16px, env(safe-area-inset-top)); right: 16px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: #fff; color: var(--ink); font-size: 22px; cursor: pointer; }
+@media (max-width: 640px) {
+  .project-cover .post-cover { aspect-ratio: 16 / 10; }
+  .gallery { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .empty-state { padding: 40px 20px; }
+}

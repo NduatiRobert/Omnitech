@@ -25,6 +25,7 @@ from content import SERVICES, SERVICE_BY_SLUG, PROCESS, WHY, HOME_FAQS  # noqa: 
 from icons import icon  # noqa: E402
 import markdown_lite as md  # noqa: E402
 from illustrations import illustration  # noqa: E402
+import portfolio as pf  # noqa: E402
 
 OUT = os.path.join(ROOT, "site")
 esc = html.escape
@@ -117,6 +118,7 @@ def load_posts():
 
 
 POSTS = []
+PROJECTS = []
 
 
 # ---------------------------------------------------------------- PIECES
@@ -161,6 +163,7 @@ def header(active, pre=""):
         </div>
       </div>
       {nl(pre + "index.html#about", "About", "about")}
+      {nl(pre + "portfolio.html", "Portfolio", "portfolio")}
       {nl(pre + "blog.html", "Blog", "blog")}
       {nl(pre + "contact.html", "Contact", "contact")}
       <a href="{pre}contact.html" class="btn btn-primary nav-cta-mobile">Get a Free Quote {icon("arrow", "ic ic-sm")}</a>
@@ -209,6 +212,7 @@ def footer(pre=""):
     <div><h3>Company</h3><ul>
       <li><a href="{pre}index.html#about">About us</a></li>
       <li><a href="{pre}services.html">All services</a></li>
+      <li><a href="{pre}portfolio.html">Portfolio</a></li>
       <li><a href="{pre}blog.html">Blog</a></li>
       <li><a href="{pre}index.html#faq">FAQs</a></li>
       <li><a href="{pre}contact.html">Contact</a></li>
@@ -539,6 +543,7 @@ def build_home():
 
 {process_block()}
 {why_block()}
+{projects_block(PROJECTS[:3], "Recent projects", "A look at some of the work we've delivered for our clients.")}
 {latest_posts_block()}
 {faq_block(HOME_FAQS, sub="Straight answers about how we work. Each service page has its own detailed FAQs.")}
 '''
@@ -640,6 +645,7 @@ def build_service(s):
 
 {process_block()}
 {faq_block(s["faqs"], title=esc(s["nav"]) + " FAQs")}
+{projects_block([p for p in PROJECTS if s["slug"] in p["services"]][:3], "Recent " + esc(s["nav"]) + " projects", "Examples of similar work we've delivered.", "Portfolio")}
 {service_posts_block(s)}
 
 <section class="section section-tint">
@@ -951,7 +957,7 @@ def build_og_image():
         f1 = ImageFont.truetype("DejaVuSans-Bold.ttf", 52)
         f2 = ImageFont.truetype("DejaVuSans.ttf", 30)
     except OSError:
-        f1 = f2 = ImageFont.load_default()
+        return  # no suitable font on this machine: keep the existing og-image.png
     d.text((80, 330), "CCTV · Internet · Hotspots", font=f1, fill=(255, 255, 255))
     d.text((80, 398), "Websites · Software · Zoho", font=f1, fill=(255, 255, 255))
     d.text((80, 500), f"{C.CITY}, {C.COUNTRY}   |   {C.PHONE_DISPLAY}", font=f2, fill=(160, 220, 245))
@@ -971,7 +977,8 @@ def build_feed():
 
 def build_sitemap():
     entries = [("", TODAY, "1.0"), ("services.html", TODAY, "0.9"), ("contact.html", TODAY, "0.8"),
-               ("blog.html", POSTS[0]["date"] if POSTS else TODAY, "0.8")]
+               ("blog.html", POSTS[0]["date"] if POSTS else TODAY, "0.8"), ("portfolio.html", TODAY, "0.8")]
+    entries += [(pr["file"], pr["date"] if pr["date"] <= TODAY else TODAY, "0.7") for pr in PROJECTS]
     entries += [(f'{s["slug"]}.html', TODAY, "0.9") for s in SERVICES]
     entries += [(p["file"], p["updated"], "0.7") for p in POSTS]
     entries += [("privacy-policy.html", TODAY, "0.3"), ("terms-and-conditions.html", TODAY, "0.3")]
@@ -992,13 +999,179 @@ def copy_blog_images():
         shutil.copytree(src, dst, dirs_exist_ok=True)
 
 
+# ---------------------------------------------------------------- PORTFOLIO
+def project_img(pr, path, pre="", thumb=False):
+    if path.startswith("http"):
+        return path
+    name = path.split("/", 1)[1] if path.startswith("images/") else path
+    return f'{pre}portfolio/images/{"thumbs/" if thumb else ""}{name}'
+
+
+def project_cover(pr, pre="", big=False):
+    if pr["cover"]:
+        return (f'<div class="post-cover has-img{" big" if big else ""}"><img src="{project_img(pr, pr["cover"], pre, thumb=not big)}" '
+                f'alt="{esc(pr["title"])}" loading="{"eager" if big else "lazy"}" width="1200" height="675"></div>')
+    s = SERVICE_BY_SLUG.get(pr["services"][0]) if pr["services"] else None
+    ic_name = s["icon"] if s else "layers"
+    label = s["nav"] if s else "Project"
+    return (f'<div class="post-cover{" big" if big else ""}" aria-hidden="true"><span class="pc-ic">{icon(ic_name)}</span>'
+            f'<span class="pc-cat">{esc(label)}</span></div>')
+
+
+def project_card(pr, pre=""):
+    svc = " ".join(pr["services"])
+    labels = " · ".join(SERVICE_BY_SLUG[x]["nav"] for x in pr["services"][:2]) or "Project"
+    where = " · ".join(x for x in (pr["location"], str(pr["date"].year)) if x)
+    tags = "".join(f'<span class="mini-tag">{esc(h)}</span>' for h in pr["highlights"][:3])
+    return (f'<a href="{pre}{pr["file"]}" class="card post-card project-card" data-svc="{esc(svc)}">'
+            f'{project_cover(pr, pre)}<div class="post-body"><span class="post-cat">{esc(labels)}</span>'
+            f'<h3>{esc(pr["title"])}</h3><p>{esc(pr["summary"])}</p>'
+            f'{f"<div class=mini-tags>{tags}</div>" if tags else ""}'
+            f'<p class="post-meta">{icon("pin", "ic ic-sm")}<span>{esc(where)}</span></p></div></a>')
+
+
+def projects_block(projects, title, sub, eyebrow="Our work", show_all=True):
+    if not projects:
+        return ""
+    btn = f'<a href="portfolio.html" class="btn btn-ghost">View all projects {icon("arrow", "ic ic-sm")}</a>' if show_all else ""
+    return f'''
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <div><p class="eyebrow">{eyebrow}</p><h2>{title}</h2><p class="lead-sm">{sub}</p></div>
+      {btn}
+    </div>
+    <div class="grid-3 mt-lg">{"".join(project_card(p) for p in projects)}</div>
+  </div>
+</section>'''
+
+
+def build_portfolio_index():
+    used = [s for s in SERVICES if any(s["slug"] in p["services"] for p in PROJECTS)]
+    chips = ""
+    if len(used) > 1:
+        chips = ('<div class="chips" role="group" aria-label="Filter by service">'
+                 '<button class="chip is-active" data-pf="all">All projects</button>'
+                 + "".join(f'<button class="chip" data-pf="{s["slug"]}">{esc(s["nav"])}</button>' for s in used) + '</div>')
+    if PROJECTS:
+        grid = f'<div class="grid-3 mt-lg project-grid">{"".join(project_card(p) for p in PROJECTS)}</div>'
+    else:
+        grid = f'''<div class="card empty-state">
+      <span class="svc-ic svc-ic-lg">{icon("layers")}</span>
+      <h2 class="h3">Case studies are on the way</h2>
+      <p>We're documenting recent CCTV, networking, hotspot, web and software projects. In the meantime, we're happy to share references and examples of similar work.</p>
+      <div class="btn-row center">
+        <a href="contact.html" class="btn btn-primary">Ask for references {icon("arrow", "ic ic-sm")}</a>
+        <a href="{wa_link("Hello Omnitech Systems, could you share examples of your previous work?")}" class="btn btn-ghost" target="_blank" rel="noopener">{icon("whatsapp", "ic ic-sm")} WhatsApp us</a>
+      </div>
+    </div>'''
+    body = f'''
+<section class="page-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="index.html">Home</a><span>/</span><span>Portfolio</span></nav>
+    <p class="eyebrow">Portfolio</p>
+    <h1>Projects we're <span class="accent">proud of.</span></h1>
+    <p class="lead">A selection of security, connectivity and digital projects we've delivered for businesses, homes and institutions.</p>
+  </div>
+</section>
+<section class="section pt-0">
+  <div class="container">
+    {chips}
+    {grid}
+  </div>
+</section>'''
+    items = ld({"@context": "https://schema.org", "@type": "CollectionPage", "name": f"{C.COMPANY} Portfolio",
+                "url": abs_url("portfolio.html"), "about": {"@id": abs_url("#business")},
+                "hasPart": [{"@type": "CreativeWork", "name": p["title"], "url": abs_url(p["file"])} for p in PROJECTS]})
+    page("portfolio.html", "Portfolio", f"Recent CCTV, networking, hotspot, website, software and Zoho projects by {C.COMPANY} in {C.COUNTRY}.",
+         "portfolio", body, items + crumbs_schema([("Home", ""), ("Portfolio", "portfolio.html")]),
+         full_title=f"Portfolio: Our Projects in {C.COUNTRY} | {C.COMPANY}")
+
+
+def build_projects():
+    pre = "../"
+    for pr in PROJECTS:
+        svcs = [SERVICE_BY_SLUG[x] for x in pr["services"]]
+        facts = [("Client", pr["client"]), ("Location", pr["location"]), ("Completed", pr["date_label"]),
+                 ("Services", ", ".join(s["nav"] for s in svcs))]
+        facts_html = "".join(f'<div><dt>{k}</dt><dd>{esc(v)}</dd></div>' for k, v in facts if v)
+        hl = "".join(f'<li>{icon("check", "ic ic-sm")} {esc(h)}</li>' for h in pr["highlights"])
+        gallery = ""
+        if pr["gallery"]:
+            gallery = ('<div class="gallery">' + "".join(
+                f'<a href="{project_img(pr, g, pre)}" class="gallery-item" data-lightbox>'
+                f'<img src="{project_img(pr, g, pre, thumb=True)}" alt="{esc(pr["title"])}, photo {i+1}" loading="lazy" width="800" height="600"></a>'
+                for i, g in enumerate(pr["gallery"])) + '</div>')
+        svc_links = "".join(f'<a href="{pre}{s["slug"]}.html" class="btn btn-primary btn-block">{esc(s["nav"])} {icon("arrow", "ic ic-sm")}</a>' for s in svcs[:2])
+        others = [q for q in PROJECTS if q is not pr and set(q["services"]) & set(pr["services"])]
+        others += [q for q in PROJECTS if q is not pr and q not in others]
+        more = ""
+        if others:
+            more = f'''
+<section class="section section-tint">
+  <div class="container">
+    <p class="eyebrow">More work</p><h2>Other projects</h2>
+    <div class="grid-3 mt-lg">{"".join(project_card(q, pre) for q in others[:3])}</div>
+  </div>
+</section>'''
+        msg = f"Hello Omnitech Systems, I saw the \"{pr['title']}\" project on your website and I'd like something similar."
+        body = f'''
+<article>
+<header class="page-hero post-hero">
+  <div class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="{pre}index.html">Home</a><span>/</span><a href="{pre}portfolio.html">Portfolio</a><span>/</span><span>{esc(pr["title"])}</span></nav>
+    <span class="post-cat">{esc(" · ".join(s["nav"] for s in svcs) or "Project")}</span>
+    <h1>{esc(pr["title"])}</h1>
+    <p class="lead">{esc(pr["summary"])}</p>
+    <dl class="facts">{facts_html}</dl>
+  </div>
+</header>
+<section class="section pt-0">
+  <div class="container">
+    <div class="project-cover">{project_cover(pr, pre, big=True)}</div>
+    <div class="post-layout mt-lg">
+      <div class="post-main">
+        <div class="prose">{pr["html"]}</div>
+        {gallery}
+      </div>
+      <aside class="post-side">
+        {f'<div class="card toc"><p class="fc-label">Project highlights</p><ul class="check-list">{hl}</ul></div>' if hl else ""}
+        <div class="card split-card dark side-cta">
+          <p class="eyebrow eyebrow-light">Want something similar?</p>
+          <h2 class="h3">Let's plan your project</h2>
+          <p>Tell us about your premises or business and we'll recommend the right solution.</p>
+          <a href="{wa_link(msg)}" class="btn btn-primary" target="_blank" rel="noopener">{icon("whatsapp", "ic ic-sm")} Chat on WhatsApp</a>
+        </div>
+        {f'<div class="card toc"><p class="fc-label">Services used</p><div class="svc-links">{svc_links}</div></div>' if svc_links else ""}
+      </aside>
+    </div>
+  </div>
+</section>
+</article>
+{more}'''
+        work = {"@context": "https://schema.org", "@type": "CreativeWork", "name": pr["title"], "about": pr["summary"],
+                "url": abs_url(pr["file"]), "dateCreated": pr["date"].isoformat(),
+                "creator": {"@id": abs_url("#business")}, "keywords": ", ".join(pr["highlights"])}
+        if pr["location"]:
+            work["locationCreated"] = {"@type": "Place", "name": pr["location"]}
+        img = None
+        if pr["cover"]:
+            img = project_img(pr, pr["cover"])
+            work["image"] = abs_url(img) if not img.startswith("http") else img
+        page(pr["file"], pr["title"], pr["summary"], "portfolio", body,
+             ld(work) + crumbs_schema([("Home", ""), ("Portfolio", "portfolio.html"), (pr["title"], pr["file"])]),
+             image=img, pre=pre)
+
+
 if __name__ == "__main__":
     os.makedirs(os.path.join(OUT, "assets/img"), exist_ok=True)
     # remove old generated blog pages so deleted / unpublished articles disappear
     shutil.rmtree(os.path.join(OUT, "blog"), ignore_errors=True)
+    shutil.rmtree(os.path.join(OUT, "portfolio"), ignore_errors=True)
     for old in glob.glob(os.path.join(OUT, "blog-page-*.html")):
         os.remove(old)
     POSTS[:] = load_posts()
+    PROJECTS[:] = pf.load_projects(ROOT, TODAY, SERVICE_BY_SLUG)
     build_home()
     build_services_index()
     for s in SERVICES:
@@ -1007,10 +1180,13 @@ if __name__ == "__main__":
     build_blog_index()
     build_posts()
     copy_blog_images()
+    build_portfolio_index()
+    build_projects()
+    pf.copy_images(ROOT, OUT)
     build_legal("privacy-policy")
     build_legal("terms-and-conditions")
     build_404()
     build_og_image()
     build_feed()
     build_sitemap()
-    print(f"Done -> {OUT}  ({len(POSTS)} published articles)")
+    print(f"Done -> {OUT}  ({len(POSTS)} published articles, {len(PROJECTS)} portfolio projects)")

@@ -46,6 +46,14 @@ Articles with a future date stay hidden until that date, so you can write severa
 
 The build adds each new article to the blog page, the home page ("From the blog"), its related service page, the sitemap and the RSS feed.
 
+## Adding a portfolio project
+1. Upload the project photos to `portfolio/images/`. Phone photos are fine; the build resizes them and makes thumbnails.
+2. Copy `portfolio/_TEMPLATE.md` and rename the copy to e.g. `2026-10-abc-supermarket-cctv.md`.
+3. Fill in the title, client, location, date, services, summary, highlights, cover photo and gallery photos, then delete the `draft: true` line.
+4. Commit. The project appears on the Portfolio page, on the home page ("Recent projects") and on each matching service page.
+
+Always get the client's permission before naming them or showing photos of their premises. Otherwise write `client: Private residence` or `client: Confidential client`.
+
 ## Editing everything else
 | What | File |
 | --- | --- |
