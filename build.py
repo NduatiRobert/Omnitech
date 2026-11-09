@@ -490,6 +490,38 @@ def partners_block():
 </section>'''
 
 
+# ---------------------------------------------------------------- HOME HERO (video + animated text)
+# Phrases typed out one after another in the headline (the first one is what Google reads)
+HERO_ROTATOR = [
+    "Connect and grow your business.",
+    "Get fast, reliable internet.",
+    "Win more customers online.",
+    "Automate the busywork.",
+]
+
+
+def animated_words(text, start=0):
+    return " ".join(f'<span class="w" style="--d:{start + i}">{esc(w)}</span>' for i, w in enumerate(text.split()))
+
+
+def home_hero_background():
+    """Background video from site/assets/video/hero.mp4 (+ optional hero.webm), else the hero photo with a slow zoom."""
+    poster = next((f"assets/img/hero/home.{e}" for e in ("webp", "jpg", "jpeg", "png")
+                   if os.path.exists(os.path.join(OUT, f"assets/img/hero/home.{e}"))), "")
+    sources = [(f"assets/video/hero.{ext}", typ) for ext, typ in (("webm", "video/webm"), ("mp4", "video/mp4"))
+               if os.path.exists(os.path.join(OUT, f"assets/video/hero.{ext}"))]
+    if sources:
+        # Sources are added by JavaScript on larger screens only, to save mobile data.
+        data = esc(json.dumps([{"src": f"{src}?v={asset_version(src)}", "type": t} for src, t in sources]))
+        poster_attr = f' poster="{poster}"' if poster else ""
+        return (f'<div class="hero-bg" aria-hidden="true">'
+                f'{f"<div class=hero-bg-img style=background-image:url({poster})></div>" if poster else ""}'
+                f'<video class="hero-bg-video" muted loop playsinline preload="none"{poster_attr} data-sources="{data}"></video></div>')
+    if poster:
+        return f'<div class="hero-bg" aria-hidden="true"><div class="hero-bg-img kenburns" style="background-image:url({poster})"></div></div>'
+    return '<div class="hero-glow g-a"></div><div class="hero-glow g-b"></div>'
+
+
 # ---------------------------------------------------------------- HERO MEDIA
 def hero_media(key, label):
     """Uses a real photo from site/assets/img/hero/<key>.(webp|jpg|jpeg|png) when present, otherwise the illustration."""
@@ -564,24 +596,25 @@ def build_home():
     sec_cc = [s for s in SERVICES if s["group"] == "Security & Connectivity"]
     dig = [s for s in SERVICES if s["group"] == "Digital & Software"]
     body = f'''
-<section class="hero hero-dark">
-  <div class="hero-glow g-a"></div><div class="hero-glow g-b"></div>
-  <div class="container hero-grid">
-    <div class="hero-copy">
-      <p class="hero-badge">Security · Connectivity · IT Solutions</p>
-      <h1>Secure your premises.<br><span class="accent">Connect and grow your business.</span></h1>
-      <p class="lead">{esc(C.COMPANY)} installs CCTV, internet and Wi-Fi hotspot systems, and builds the websites, software, automations and Zoho solutions that help businesses run smarter.</p>
-      <div class="btn-row">
+<section class="hero hero-dark hero-video">
+  {home_hero_background()}
+  <div class="hero-overlay"></div>
+  <div class="container">
+    <div class="hero-copy hero-anim">
+      <p class="hero-badge a-in" style="--d:0">Security · Connectivity · IT Solutions</p>
+      <h1><span class="h1-line">{animated_words("Secure your premises.", 1)}</span>
+        <span class="accent rotator" data-rotate='{esc(json.dumps(HERO_ROTATOR))}'><span class="rot-text">{esc(HERO_ROTATOR[0])}</span><span class="caret" aria-hidden="true"></span></span></h1>
+      <p class="lead a-in" style="--d:6">{esc(C.COMPANY)} installs CCTV, internet and Wi-Fi hotspot systems, and builds the websites, software, automations and Zoho solutions that help businesses run smarter.</p>
+      <div class="btn-row a-in" style="--d:7">
         <a href="contact.html" class="btn btn-primary">Get a Free Quote {icon("arrow", "ic ic-sm")}</a>
         <a href="{wa_link()}" class="btn btn-outline-light" target="_blank" rel="noopener">{icon("whatsapp", "ic ic-sm")} Chat on WhatsApp</a>
       </div>
-      <ul class="hero-points">
+      <ul class="hero-points a-in" style="--d:8">
         <li>{icon("check", "ic ic-sm")} Free site surveys</li>
         <li>{icon("check", "ic ic-sm")} Itemised quotations</li>
         <li>{icon("check", "ic ic-sm")} After-sales support</li>
       </ul>
     </div>
-    <div class="hero-media">{hero_media("home", "Outdoor Wi-Fi security camera installed on a building wall by Omnitech Systems")}</div>
   </div>
 </section>
 

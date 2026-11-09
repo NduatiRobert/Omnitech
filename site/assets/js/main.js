@@ -168,3 +168,48 @@
     });
   });
 })();
+
+// Home hero: typewriter rotator + background video (larger screens only, saves mobile data)
+(function () {
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  var rot = document.querySelector('.rotator[data-rotate]');
+  if (rot && !reduce) {
+    var phrases; try { phrases = JSON.parse(rot.getAttribute('data-rotate')); } catch (e) { phrases = []; }
+    var out = rot.querySelector('.rot-text');
+    if (phrases.length > 1 && out) {
+      var i = 0, pos = phrases[0].length, deleting = false;
+      var tick = function () {
+        var word = phrases[i];
+        if (!deleting) {
+          pos++;
+          out.textContent = word.slice(0, pos);
+          if (pos >= word.length) { deleting = true; return setTimeout(tick, 2600); }
+          return setTimeout(tick, 55);
+        }
+        pos--;
+        out.textContent = word.slice(0, Math.max(pos, 0));
+        if (pos <= 0) { deleting = false; i = (i + 1) % phrases.length; return setTimeout(tick, 350); }
+        setTimeout(tick, 28);
+      };
+      pos = phrases[0].length; deleting = true;
+      setTimeout(tick, 3400);
+    }
+  }
+
+  var video = document.querySelector('.hero-bg-video[data-sources]');
+  if (video) {
+    var conn = navigator.connection || {};
+    var bigScreen = window.matchMedia('(min-width: 768px)').matches;
+    if (bigScreen && !conn.saveData && !reduce) {
+      try {
+        JSON.parse(video.getAttribute('data-sources')).forEach(function (s) {
+          var el = document.createElement('source'); el.src = s.src; el.type = s.type; video.appendChild(el);
+        });
+        video.load();
+        video.addEventListener('playing', function () { video.classList.add('is-playing'); });
+        var p = video.play(); if (p && p.catch) p.catch(function () {});
+      } catch (e) {}
+    }
+  }
+})();
