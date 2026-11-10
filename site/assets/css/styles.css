@@ -622,3 +622,4 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
 @media (prefers-reduced-motion: reduce) { .svc-tile img, .svc-tile p { transition: none; } }
 .svc-tile img[src*="cctv-installation-photo"] { object-position: center 80%; }
 .svc-tile img[src*="hotspot-business-photo"] { object-position: 20% center; }
+.svc-tile img[src*="website-development-photo"] { object-position: 30% center; }
