@@ -599,3 +599,24 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
   .hero-anim .w, .hero-anim .a-in, .hero-anim .rotator { opacity: 1; transform: none; animation: none; }
   .caret { display: none; }
 }
+
+/* =====================================================================
+   SERVICE IMAGE TILES (picture with a dark caption band)
+   ===================================================================== */
+.svc-tile { position: relative; display: block; overflow: hidden; border-radius: 18px; aspect-ratio: 4 / 4.6; max-width: 100%; background: var(--navy); box-shadow: var(--shadow); isolation: isolate; }
+.svc-tile img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 40%; transition: transform .6s cubic-bezier(.2,.7,.2,1); }
+.svc-tile::after { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(180deg, rgba(12,11,23,0) 45%, rgba(12,11,23,.25) 100%); }
+.svc-tile-body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 16px 20px 18px; color: rgba(255,255,255,.8); display: flex; flex-direction: column; gap: 6px; background: rgba(16,14,38,.86); backdrop-filter: blur(10px) saturate(140%); -webkit-backdrop-filter: blur(10px) saturate(140%); border-top: 1px solid rgba(255,255,255,.08); }
+.svc-tile-ic { position: absolute; top: -20px; left: 20px; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--grad); color: #fff; box-shadow: 0 6px 16px rgba(78,121,232,.4); }
+.svc-tile-body h3 { margin-top: 18px !important; }
+.svc-tile-ic .ic { width: 19px; height: 19px; }
+.svc-tile h3 { color: #fff; margin: 0; font-size: 1.08rem; line-height: 1.3; }
+.svc-tile p { margin: 0; font-size: .86rem; line-height: 1.5; max-height: 0; opacity: 0; overflow: hidden; transition: max-height .4s ease, opacity .3s ease; }
+.svc-tile-link { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; font-size: .86rem; color: var(--cyan); }
+.svc-tile-link .ic { transition: transform .2s; }
+.svc-tile:hover img, .svc-tile:focus-visible img { transform: scale(1.07); }
+.svc-tile:hover p, .svc-tile:focus-visible p { max-height: 6em; opacity: 1; }
+.svc-tile:hover .svc-tile-link .ic { transform: translateX(3px); }
+@media (hover: none) { .svc-tile p { max-height: 6em; opacity: 1; } }
+@media (max-width: 640px) { .svc-tile { aspect-ratio: 4 / 3.6; } }
+@media (prefers-reduced-motion: reduce) { .svc-tile img, .svc-tile p { transition: none; } }

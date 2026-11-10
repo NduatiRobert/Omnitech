@@ -292,7 +292,24 @@ def why_block():
 </section>'''
 
 
+def service_image(slug):
+    """Card picture: site/assets/img/services/<slug>-photo.(webp|jpg|png) if you add a photo, else the illustration."""
+    for name in (f"{slug}-photo", slug):
+        for ext in ("webp", "jpg", "jpeg", "png"):
+            rel = f"assets/img/services/{name}.{ext}"
+            if os.path.exists(os.path.join(OUT, rel)):
+                return rel
+    return None
+
+
 def service_card(s):
+    img = service_image(s["slug"])
+    if img:
+        return (f'<a href="{s["slug"]}.html" class="svc-tile">'
+                f'<img src="{img}" alt="{esc(s["name"])}" loading="lazy" width="900" height="675">'
+                f'<div class="svc-tile-body"><span class="svc-tile-ic">{icon(s["icon"])}</span>'
+                f'<h3>{esc(s["name"])}</h3><p>{esc(s["short"])}</p>'
+                f'<span class="svc-tile-link">Explore service {icon("arrow", "ic ic-sm")}</span></div></a>')
     return (f'<a href="{s["slug"]}.html" class="card svc-card">'
             f'<span class="svc-ic">{icon(s["icon"])}</span>'
             f'<h3>{esc(s["name"])}</h3><p>{esc(s["short"])}</p>'
