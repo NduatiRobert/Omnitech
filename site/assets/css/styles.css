@@ -625,3 +625,4 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
 .svc-tile img[src*="website-development-photo"] { object-position: 30% center; }
 .svc-tile img[src*="software-development-photo"] { object-position: 45% center; }
 .svc-tile img[src*="zoho-consulting-photo"] { object-position: 8% center; }
+.svc-tile img[src*="digital-marketing-photo"] { object-position: 52% center; }
