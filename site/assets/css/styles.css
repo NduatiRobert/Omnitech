@@ -620,3 +620,4 @@ a.tag:hover { border-color: var(--cyan); color: var(--cyan); }
 @media (hover: none) { .svc-tile p { max-height: 6em; opacity: 1; } }
 @media (max-width: 640px) { .svc-tile { aspect-ratio: 4 / 3.6; } }
 @media (prefers-reduced-motion: reduce) { .svc-tile img, .svc-tile p { transition: none; } }
+.svc-tile img[src*="cctv-installation-photo"] { object-position: center 80%; }
